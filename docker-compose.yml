@@ -1,0 +1,71 @@
+version: "3.4"
+
+x-build: &build
+  build: .
+
+x-development-build: &development-build
+  build:
+    context: .
+    args:
+      target: ".[development]"
+
+x-networks: &networks
+  networks:
+    - ns
+
+x-mounted: &mounted
+  volumes:
+    - .:/usr/src/app
+
+services:
+  build-package:
+    <<: *build
+    <<: *networks
+
+  format-imports:
+    <<: *development-build
+    <<: *mounted
+    <<: *networks
+    command: isort pairing/. tests/.
+
+  format:
+    <<: *development-build
+    <<: *mounted
+    <<: *networks
+    command: black -l 79 --target-version py39 pairing tests
+
+  check-format-imports:
+    <<: *development-build
+    <<: *networks
+    command: isort --check-only pairing/. tests/.
+
+  check-format:
+    <<: *development-build
+    <<: *networks
+    command: black -l 79 --target-version py39 --check pairing tests
+
+  check-style:
+    <<: *development-build
+    <<: *networks
+    command: pylint --reports=n --rcfile=pylintrc pairing tests
+
+  check-complexity:
+    <<: *development-build
+    <<: *networks
+    command: xenon --max-absolute B --max-modules B --max-average A pairing
+
+  check-security-sast:
+    <<: *development-build
+    <<: *networks
+    command: bandit -r pairing
+
+  test-unit:
+    <<: *development-build
+    <<: *networks
+    command: pytest tests/unit --junitxml=reports/report_unit_tests.xml
+    volumes:
+      - ./reports:/usr/src/app/reports
+
+networks:
+  ns:
+    driver: bridge
