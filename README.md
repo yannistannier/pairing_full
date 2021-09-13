@@ -17,6 +17,7 @@ Pairing s'appuie le plus possible sur les fonctions de vectorization avec des s�
 **To do :**
 -  Approximation recherche sur des TF-IDF via calcul de distance
 -  Comptabilité avec Spark pour une meilleure montée à l'échelle.
+-  Utiliser un transformer (Bert) afin d'extraire une signature (embedding) pour chaque nom / prénom / commun de naissance afin d'exécuter des calculs de distance et faire un matching fuzzy scalable 
 
 
 
